@@ -1,9 +1,52 @@
-- name: developers
+- name: create group developers
   ansible.builtin.group:
     name: developers
     state: present
 
-- name: admins
+- name: create group admins
   ansible.builtin.group:
     name: admins
     state: present
+
+- name: create admin user
+  ansible.builtin.user:
+    name: admin
+    groups: admins
+    create_home: true
+    shell: /bin/bash
+    state: present
+
+- name: create developer-1 user
+  ansible.builtin.user:
+    name: dev_1
+    groups: developers
+    create_home: true
+    shell: /bin/bash
+    state: present
+
+- name: create developer-2 user
+  ansible.builtin.user:
+    name: dev_2
+    groups: developers
+    create_home: true
+    shell: /bin/bash
+    state: present
+
+- name: generate ssh keys for developers
+  ansible.builtin.command: >
+    ssh-keygen -t ed25519 -N "" -f playbooks/files/keys/{{ item }}
+  args:
+    creates: "playbooks/files/keys/{{ item }}.pub"
+  loop:
+    - dev1
+    - dev2
+
+- name: add ssh keys to developers accounts
+  ansible.posix.authorized_key:
+    user: "{{ item }}"
+    key: "{{ lookup('file', 'playbooks/files/keys/' ~ item ~ '.pub') }}"
+    state: present
+  loop:
+    - dev1
+    - dev2
+
