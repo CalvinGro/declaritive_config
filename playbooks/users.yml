@@ -1,0 +1,9 @@
+- name: developers
+  ansible.builtin.group:
+    name: developers
+    state: present
+
+- name: admins
+  ansible.builtin.group:
+    name: admins
+    state: present
